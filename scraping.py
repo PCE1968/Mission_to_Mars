@@ -20,6 +20,7 @@ def scrape_all():
         "news_paragraph": news_paragraph,
         "featured_image": featured_image(browser),
         "facts": mars_facts(),
+        "hemispheres": mars_hemispheres(browser),
         "last_modified": dt.datetime.now()
     }
 
@@ -100,6 +101,58 @@ def mars_facts():
     
     # Convert dataframe into HTML format, add bootstrap
     return df.to_html(classes="table table-striped")
+
+
+
+def mars_hemispheres(browser):
+
+    # 1. Use browser to visit the URL 
+    url = 'https://marshemispheres.com/'
+    browser.visit(url)
+
+    # 2. Create a list to hold the images and titles.
+    hemisphere_image_urls = []
+
+    # 3. Write code to retrieve the image urls and titles for each hemisphere.
+    html = browser.html
+    hemi_soup = soup(html, 'html.parser')
+
+    hemi_items = hemi_soup.find_all('div', class_= "description")
+
+    for hemi in hemi_items:
+        
+        hemispheres = {"img_url":[], "title":[]}    
+        
+        link = hemi.find("a", href=True)
+        href = link['href']
+        url2 = url + href
+
+        browser.visit(url2)
+        html2 = browser.html
+        hemi_soups = soup(html2, 'html.parser')
+        
+        hemi_items2 = hemi_soups.find('div', class_= "container")
+
+        hemi_title = hemi_items2.find('h2', class_='title').text
+        
+        # Add try/except for error handling
+        try:
+            link2 = hemi_items2.find('a', target=True)
+            hemi_url_rel = link2['href']
+        except AttributeError:
+            return None
+        
+        hemi_url = url + hemi_url_rel
+        keys = ['img_url', 'title']
+        values = [hemi_url, hemi_title]
+        hemispheres = dict(zip(keys, values))
+        
+        browser.back()
+        
+        hemisphere_image_urls.append(hemispheres)
+        
+
+    return hemisphere_image_urls
 
 if __name__ == "__main__":
 
