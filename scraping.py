@@ -119,30 +119,18 @@ def mars_hemispheres(browser):
 
     hemi_items = hemi_soup.find_all('div', class_= "description")
 
-    for hemi in hemi_items:
-        
-        hemispheres = {"img_url":[], "title":[]}    
-        
-        link = hemi.find("a", href=True)
-        href = link['href']
-        url2 = url + href
-
-        browser.visit(url2)
-        html2 = browser.html
-        hemi_soups = soup(html2, 'html.parser')
-        
-        hemi_items2 = hemi_soups.find('div', class_= "container")
-
-        hemi_title = hemi_items2.find('h2', class_='title').text
+    for i in range(4):
+        hemispheres = {}
+        browser.find_by_css('img.thumb')[i].click()
         
         # Add try/except for error handling
         try:
-            link2 = hemi_items2.find('a', target=True)
-            hemi_url_rel = link2['href']
+            link2 = browser.find_by_text("Sample")[0]
+            hemi_url = link2['href']
+            hemi_title = browser.find_by_css("h2.title").text
         except AttributeError:
             return None
         
-        hemi_url = url + hemi_url_rel
         keys = ['img_url', 'title']
         values = [hemi_url, hemi_title]
         hemispheres = dict(zip(keys, values))
